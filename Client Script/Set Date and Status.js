@@ -20,15 +20,21 @@ frappe.ui.form.on('Machine Maintenance', {
         const technician = frappe.user_roles.includes("Technician");
 
         // Show "Mark Completed" button only for technicians on draft docs
-        if (technician && frm.doc.status !== "Open" && frm.doc.docstatus === 0) {
-    frm.add_custom_button('Mark Completed', () => {
+        // AND status is neither "Open" nor "Completed"
+        if (
+            technician &&
+            frm.doc.status !== "Open" &&
+            frm.doc.status !== "Completed" &&
+            frm.doc.docstatus === 0
+        ) {
+            frm.add_custom_button('Mark Completed', () => {
 
-        frm.set_value('status', 'Completed');
-        frm.set_value('completion_date', frappe.datetime.get_today());
+                frm.set_value('status', 'Completed');
+                frm.set_value('completion_date', frappe.datetime.get_today());
 
-        frm.save();
-    });
-}
+                frm.save();
+            });
+        }
     },
 
     // When maintenance date changes, recalc overdue
