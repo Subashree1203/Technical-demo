@@ -5,7 +5,7 @@ frappe.ui.form.on('Machine Parts', {
         let row = locals[cdt][cdn];
 
         if (!row.part) return;
-
+    // Fetch item price from Item Price doctype
         frappe.call({
             method: "frappe.client.get_value",
             args: {
@@ -16,6 +16,7 @@ frappe.ui.form.on('Machine Parts', {
                 }
             },
             callback: function(r) {
+                // Set rate if found, otherwise set to 0
                 if (r.message) {
                     frappe.model.set_value(cdt, cdn, "rate", r.message.price_list_rate);
                 } else {
@@ -27,11 +28,11 @@ frappe.ui.form.on('Machine Parts', {
             }
         });
     },
-
+     // Recalculate on quantity change
     quantity: function(frm, cdt, cdn) {
         calculate_amount(frm, cdt, cdn);
     },
-
+    // Recalculate on rate change
     rate: function(frm, cdt, cdn) {
         calculate_amount(frm, cdt, cdn);
     }
@@ -40,8 +41,10 @@ frappe.ui.form.on('Machine Parts', {
 // Helper to compute amount
 function calculate_amount(frm, cdt, cdn) {
     let row = locals[cdt][cdn];
+    // amount = quantity × rate
     let amount = (row.quantity || 0) * (row.rate || 0);
-
+    // Update row amount
     frappe.model.set_value(cdt, cdn, "amount", amount);
+    // Refresh child table
     frm.refresh_field('parts_used');
 }
