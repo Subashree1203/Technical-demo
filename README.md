@@ -1,79 +1,102 @@
-# Technical-demo
 
-1. Custom DocType & Fields
+# Technical Demo — Machine Maintenance Module
 
-Create a new DocType: Machine Maintenance
+[![Repo size](https://img.shields.io/github/repo-size/Subashree1203/Technical-demo)](https://github.com/Subashree1203/Technical-demo)
 
-Fields:
-Machine Name (Link, Item)
-Maintenance Date (Date)
-Maintenance Type (Select: Preventive, Corrective)
-Completion Date (Date)
-Technician (Link, Employee)
-Status (Select: Scheduled, Completed, Overdue)
-Cost (Currency)
-Notes (Seperate Tab which have the same Notes Functionality in Lead)
-Table: Parts Used
-           Fields: Part (Link, Item), Quantity (Float),Rate, Amount (Currency, read-only, computed)
+> Demo implementation of a Machine Maintenance module: custom DocType, client & server scripts, workflow, reports, notifications and dashboards.
 
-          Make Cost auto-calculate as the sum of all Amount in Parts Used.
+---
 
-2. Client-Side Script
-Hide Notes field if Status is Scheduled.
-Automatically set Maintenance Date to today if creating a new record.
-Auto-update Status to Overdue if Maintenance Date < today and Status is not Completed.
-Add a button “Mark Completed” to set Status = Completed and record the completion date.
-3. Server-Side Script / DocEvents
+## Table of contents
 
-On submission of Machine Maintenance:
+- [Overview](#overview)  
+- [Screenshots](#screenshots)  
+- [Features](#features)  
 
-Create a Journal Entry to log the maintenance cost against:
-              Ensure the Journal Entry respects currency conversion to the company currency
-              Debit: Maintenance Expense account
-              Credit: Cash/Bank account
-Validate that Technician is assigned; throw an error if empty.
-4. Workflow
+---
 
-Workflow states: Draft → Scheduled → Completed → Closed
-Transition rules:
-           Draft → Scheduled : Only Technician role
-           Scheduled → Completed : Only Technician
-           Completed → Closed : Manager approval
-           On transition to Closed, send email to the Operations manager.
+## Overview
 
-5. Report
+This project demonstrates a full maintenance workflow for machines. It includes:
 
-Create a Script Report Machine Maintenance Report
-Columns: Machine, Maintenance Date, Technician, Status, Total Cost,Consolidated (Check Box)
-Filters: Machine, Technician, Date Range
-When Consolidated = True:
-           Group all maintenance entries by Machine
-           Sum Total Cost per machine
-           Display one row per machine with aggregated totals
-When Consolidated = False:
-           Show individual maintenance entries (default report view)
-           Highlight rows based on Status:
+- A **Machine Maintenance** DocType that captures machine, maintenance type, dates, parts used (quantity, rate, computed amount), total cost, technician, and status.
+- Client scripts for UI behavior (autofill dates, calculate amounts, hide/show fields, “Mark Completed” action).
+- Server scripts (DocEvents) for validation and journal entry creation on submission.
+- A **Workflow**: `Draft → Scheduled → Completed → Closed` with role-based transitions and manager approval.
+- A **Script report** with consolidated/individual views and status-based highlights.
+- Email **notifications** for scheduled, overdue, and completed maintenance.
+- A **dashboard** with KPIs and charts (status distribution, monthly cost trend).
 
-           Overdue → Red background ,Scheduled → Yellow,Completed → Green
+---
 
-Create a Print Format for the report with grouped totals.
-6. Notifications
-Send email notifications:
+## Screenshots
 
-              When maintenance is completed
-              When maintenance becomes overdue
-              When maintenance is scheduled
-7. Dashboard / KPIs
-Create a dashboard for Machine Maintenance:
-Number of completed maintenance tasks
+### Machine Maintenance Form
+![Machine Maintenance Form](https://github.com/Subashree1203/Technical-demo/blob/main/Doctype/Doctype%20Preview.png?raw=true)
 
-Number of overdue maintenance tasks
+### Workflow Flow
+![Workflow Flow](https://github.com/Subashree1203/Technical-demo/blob/main/Workflow/Workflow.png?raw=true)
 
-Total maintenance cost this month
+### Report View
+![Report View](https://github.com/Subashree1203/Technical-demo/blob/main/Reports/Report%20Image.png?raw=true)
 
-Add charts:
+### Dashboard / KPIs
+![Dashboard](https://github.com/Subashree1203/Technical-demo/blob/main/Dashboard/Dashboard.png?raw=true)
 
-Pie chart for Status distribution (Scheduled, Completed, Overdue)
 
-Maintenance cost trend by month
+## Features (detailed)
 
+### DocType
+- Fields:
+  - Machine Name (Link to Item)
+  - Maintenance Date (Date)
+  - Maintenance Type (Select: Preventive / Corrective)
+  - Completion Date (Date)
+  - Technician (Link to Employee)
+  - Status (Select: Draft / Scheduled / Completed / Overdue / Closed)
+  - Parts Used (Table): Part (Link), Quantity, Rate, Amount (computed)
+  - Cost (Currency) — auto-sum of the parts’ amounts
+  - Notes
+- Validations: Technician required on submit; total cost auto-calculated.
+
+### Client-side behaviors
+- Autofill `Maintenance Date` on new records.
+- Hide `Notes` when Status = Scheduled (example behavior).
+- Mark a record as overdue automatically when `Maintenance Date` < today and status not Completed.
+- “Mark Completed” button sets Completion Date and Status = Completed.
+
+### Server-side logic
+- On submission, create a Journal Entry logging maintenance cost (respects company currency).
+- Validations and error messages for missing mandatory fields.
+- Hook for sending notification emails on state changes.
+
+### Workflow
+- States: `Draft → Scheduled → Completed → Closed`
+- Role rules:
+  - Draft → Scheduled: Technician
+  - Scheduled → Completed: Technician
+  - Completed → Closed: Manager approval
+- On closing, email sent to Operations / Manager.
+
+### Reports
+- Script Report: `Machine Maintenance Report`
+  - Columns: Machine, Maintenance Date, Technician, Status, Total Cost
+  - Filters: Machine, Technician, Date range
+  - Consolidated option: group by Machine, show aggregated totals
+  - Status-based row highlighting (Overdue: red; Scheduled: yellow; Completed: green)
+- Print format for consolidated/detailed export.
+
+### Notifications
+- Emails for changes:
+  - When maintenance is scheduled
+  - When maintenance becomes overdue
+  - When maintenance is completed
+  - On closing (manager notification)
+
+### Dashboard / KPIs
+- Number of completed maintenance tasks
+- Number of overdue tasks
+- Total maintenance cost this month
+- Charts:
+  - Pie chart: status distribution
+  - Line/bar chart: maintenance cost trend by month
